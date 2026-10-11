@@ -3,70 +3,186 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Industrial Tradeopoly</title>
+<title>Industrial Tradeopoly — Build. Transform. Trade. Thrive.</title>
+<meta name="description" content="Industrial Tradeopoly: A Monopoly-inspired board game about decarbonising heavy industry through trade, circular economy & hydrogen. Play free online.">
 <style>
-:root{--green:#2a5a2a;--cream:#f5f1e6}
-body{margin:0;font-family:system-ui,sans-serif;background:var(--cream)}
-header{background:var(--green);color:white;padding:18px;text-align:center}
-header h1{margin:0}
-.wrap{max-width:1100px;margin:0 auto;padding:12px}
-.board{background:white;border-radius:14px;padding:10px;box-shadow:0 6px 24px rgba(0,0,0,.12)}
-.board img{width:100%;border-radius:10px}
-.panel{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0}
-@media(max-width:800px){.panel{grid-template-columns:1fr}}
-.card{background:white;border-radius:14px;padding:16px;box-shadow:0 6px 24px rgba(0,0,0,.12)}
-.btn{background:var(--green);color:white;border:none;padding:12px 18px;border-radius:10px;font-weight:700;cursor:pointer;margin:4px}
-.dice{font-size:40px;font-weight:800;min-height:56px;display:flex;align-items:center;justify-content:center;background:#f0ece0;border-radius:10px}
-.status{min-height:70px;background:#f7f3e8;border:2px dashed #c9bfa1;border-radius:10px;padding:12px;display:flex;align-items:center;font-weight:600}
-.score{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
-.score div{background:#f0ece0;border-radius:10px;padding:10px}
-.score b{display:block;font-size:20px;color:var(--green)}
+:root{--green:#2a5a2a;--cream:#f5f1e6;--ink:#1e1e1e}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--cream);color:var(--ink);line-height:1.5}
+header{background:var(--green);color:white;padding:32px 16px;text-align:center}
+header h1{margin:0;font-size:40px;letter-spacing:1px}
+header.sub{letter-spacing:3px;font-weight:800;margin-top:6px;opacity:.9}
+header.desc{max-width:780px;margin:14px auto 0;opacity:.9;font-size:15px}
+.btn{background:var(--green);color:white;border:none;padding:13px 20px;border-radius:12px;font-weight:800;cursor:pointer;margin:4px;text-decoration:none;display:inline-block}
+.btn.sec{background:#222}.btn.warn{background:#b45309}
+.wrap{max-width:1200px;margin:0 auto;padding:12px}
+.card{background:white;border-radius:16px;padding:18px;margin:14px 0;box-shadow:0 8px 30px rgba(0,0,0,.08)}
+.grid6{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-top:10px}
+.tile6{border-radius:12px;padding:12px;background:#fafaf5;border-left:6px solid #ccc;font-size:13px}
+.small{font-size:12px;color:#666}
+.top{display:grid;grid-template-columns:2fr 1fr;gap:12px}
+@media(max-width:900px){.top{grid-template-columns:1fr}}
+.board-wrap{background:white;border-radius:14px;padding:8px;box-shadow:0 6px 24px rgba(0,0,0,.12);position:relative;overflow:hidden}
+.board-wrap img{width:100%;border-radius:10px;display:block}
+.token-layer{position:absolute;inset:8px;border-radius:10px;pointer-events:none}
+.player-dot{position:absolute;width:18px;height:18px;border-radius:50%;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,.4);transition:all.6s;display:flex;align-items:center;justify-content:center;font-size:10px;color:white;font-weight:900}
+.dice{font-size:34px;font-weight:900;min-height:56px;display:flex;align-items:center;justify-content:center;background:#f0ece0;border-radius:10px}
+.status{min-height:78px;background:#f7f3e8;border:2px dashed #c9bfa1;border-radius:10px;padding:12px;font-weight:600}
+.player-card{border:2px solid #e5e0cf;border-radius:12px;padding:10px;background:#fffcf0;margin-top:8px}
+.player-card.active{border-color:var(--green);box-shadow:0 0 0 3px rgba(42,90,42,.15)}
+.dot{width:14px;height:14px;border-radius:50%;display:inline-block}
+.badge{display:inline-block;border-radius:999px;padding:2px 8px;font-size:11px;background:#eee;margin:2px}
+.board-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px;max-height:340px;overflow:auto;margin-top:8px}
+.tile{border-radius:10px;padding:8px;border-left:6px solid #ccc;background:#fafafa;font-size:12px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:50;padding:12px}
+.modal.show{display:flex}
+.modal-box{background:white;border-radius:16px;padding:18px;max-width:440px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3)}
 </style>
 </head>
 <body>
 <header>
 <h1>INDUSTRIAL TRADEOPOLY</h1>
-<p>BUILD. TRANSFORM. TRADE. THRIVE.</p>
+<div class="sub">BUILD. TRANSFORM. TRADE. THRIVE.</div>
+<div class="desc">A Monopoly-inspired board game that turns industry decarbonisation, circular economy & green trade corridors into a playable strategy. Workshop-tested in Berlin — now free to play online for educators, climate policy folks & LinkedIn community. Start $500, Final Score = Cash + Trade Tokens×100 + DP×200.</div>
+<div style="margin-top:14px">
+<a class="btn sec" href="#play">▶️ PLAY NOW (4 Players)</a>
+<a class="btn" style="background:#fff;color:var(--green)" href="#about">What is this?</a>
+</div>
 </header>
+
 <div class="wrap">
-<div class="board"><img src="board.jpg" alt="Board"></div>
-<div class="panel">
-<div class="card">
-<h3> Game Controls</h3>
+
+<div class="card" id="about">
+<h2 style="margin-top:0">What is this?</h2>
+<p>Heavy industry = 30% of global CO2. But what if we make decarbonisation profitable through trade? Players build a green industrial system across 6 corridors — from Coal Mine ($60) to Hydrogen Export Terminal ($360).</p>
+<div class="grid6">
+<div class="tile6" style="border-color:#7a5a3a"><b>1. Fossil</b><br>Coal $60, Oil & Gas $80, Fossil Power $100 — cheap but risky</div>
+<div class="tile6" style="border-color:#5b9bd5"><b>2. Utility</b><br>Scrap Supply $120, Water $140, Renewable Grid $180 — +1 DP</div>
+<div class="tile6" style="border-color:#8abf7a"><b>3. Circular</b><br>Scrap Processing $160, Battery $220, Heat $240, Symbiosis $300 — +1 DP</div>
+<div class="tile6" style="border-color:#e2a44a"><b>4. Trade</b><br>Bilateral $120, Strategic $260, Green Corridor $340 — +1 Trade Token</div>
+<div class="tile6" style="border-color:#a0a0a0"><b>5. Steel</b><br>EAF $200, DRI $260, HBI $320 — +1 DP</div>
+<div class="tile6" style="border-color:#2ec4b6"><b>6. Hydrogen</b><br>Electrolyser $220, Storage $280, Export $360 — +DP/Token</div>
+</div>
+<p class="small"><b>GO</b> = National Green Industrial Strategy: +$200 +1 Token when you pass. <b>Carbon Lock-in</b> = Jail: Pay $100 or miss turn. <b>Transition Chance</b> & <b>Development Finance</b> cards are shuffled (12 each) — CBAM, concessional finance, cost overruns, etc. Original educational game, not affiliated with Hasbro MONOPOLY®.</p>
+</div>
+
+<div class="card" id="play">
+<h2 style="margin:0 0 6px">🎲 Play Online v2.1 — $500 Start | BUY or SKIP | Shuffled Decks</h2>
+<p class="small">4 player tokens walk around your board image. Land on property → popup: BUY or SKIP. Decks show remaining count and reshuffle automatically. Final leaderboard live.</p>
+
+<div class="top">
+<div class="board-wrap" id="boardWrap"><img src="board.jpg" alt="Board"><div class="token-layer" id="tokenLayer"></div></div>
+<div>
+<div class="card" style="margin:0">
+<div style="display:flex;justify-content:space-between;align-items:center"><h3 style="margin:0">Controls</h3><span class="small" id="turnInfo"></span></div>
 <div class="dice" id="dice">Roll to start</div>
-<div style="text-align:center;margin:10px 0">
-<button class="btn" onclick="roll()">ROLL DICE</button>
-<button class="btn" style="background:#444" onclick="drawChance()">TRANSITION CHANCE?</button>
-<button class="btn" style="background:#444" onclick="drawFinance()">DEVELOPMENT FINANCE</button>
+<div style="text-align:center;margin:8px 0">
+<button class="btn" onclick="roll()">🎲 ROLL DICE</button>
+<button class="btn sec" onclick="drawCard('chance')">CHANCE?</button>
+<button class="btn sec" onclick="drawCard('finance')">FINANCE</button>
+<button class="btn warn" onclick="nextPlayer()">END TURN →</button>
 </div>
-<div class="status" id="status">Start at GO: National Green Industrial Strategy. Collect $200 + 1 Trade Token.</div>
-<div class="score" style="margin-top:14px">
-<div><b id="cash">$1500</b>Cash</div>
-<div><b id="tokens">0</b>Trade Tokens x100</div>
-<div><b id="dp">0</b>DP x200</div>
+<div class="status" id="status">Player 1 starts at GO with $500. Pass GO = +$200 +1 Trade Token. Land on property to choose BUY or SKIP.</div>
+<div style="display:flex;gap:10px;margin-top:6px" class="small"><span id="chanceCount"></span><span id="financeCount"></span></div>
+<div id="players"></div>
 </div>
-<p style="text-align:center;font-weight:800">Final Score: <span id="final">1500</span></p>
 </div>
+</div>
+
+<div style="margin-top:12px"><h3>Properties (28 tiles)</h3><div class="board-grid" id="boardGrid"></div></div>
+</div>
+
 <div class="card">
-<h3> Your Corridors</h3>
-<p><b>GO:</b> +$200 +1 Token</p>
-<p>1. Fossil $60-$100, 2. Utility $120-$180, 3. Circular $160-$300, 4. Trade $120-$340, 5. Steel $200-$320, 6. Hydrogen $220-$360</p>
-<p><b>Final Score = Cash + Tokens×100 + DP×200</b></p>
-<p><small>Original game. Not affiliated with Hasbro MONOPOLY®</small></p>
+<h3>For Educators — Free to Use</h3>
+<p>Print the board at A2, use Trade Tokens & DP tokens from workshop. Download images (right-click save). DM me on LinkedIn for facilitation guide & print files.</p>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><img src="board.jpg" style="width:100%;border-radius:10px"><img src="cards.jpg" style="width:100%;border-radius:10px"></div>
+<p class="small" style="text-align:center;margin-top:10px">Original game. Free educational use. https://industrytransition.github.io/Tradopoly/ — Share freely.</p>
 </div>
+
 </div>
-<div class="card"><h3>Card Set</h3><img src="cards.jpg" style="width:100%;border-radius:10px"></div>
-</div>
+
+<div class="modal" id="modal"><div class="modal-box"><h3 id="mTitle" style="margin-top:0"></h3><p id="mBody"></p><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="btn" id="mAction1"></button><button class="btn sec" id="mAction2"></button><button class="btn sec" onclick="closeModal()">Close</button></div></div></div>
+
 <script>
-const board=["GO (+$200 +1 Token)","COAL MINE $60","OIL & GAS FIELD $80","FOSSIL FUEL POWER PLANT $100","TRANSITION CHANCE","SCRAP SUPPLY $120","RECYCLED WATER $140","RENEWABLE GRID $180","DEVELOPMENT FINANCE","CARBON LOCK-IN JAIL","SCRAP PROCESSING $160","BATTERY RECYCLING $220","HEAT NETWORK $240","SYMBIOSIS PARK $300","CHANCE","FINANCE","EAF STEEL $200","DRI PLANT $260","HBI TERMINAL $320","PARTNERSHIP HUB","CHANCE","BILATERAL TRADE $120","STRATEGIC EXPORT $260","GREEN CORRIDOR $340","FINANCE","ELECTROLYSER $220","H2 STORAGE $280","H2 EXPORT $360"];
-const chance=["FOSSIL FUEL PRICE SPIKE: Collect $25 from each player","RENEWABLE ENERGY AUCTION: Collect $25 from each","CBAM INTRODUCED: Collect $150 + 1 Trade Token","GREEN PUBLIC PROCUREMENT: Collect $50","HYDROGEN DEMAND SURGE: Collect $100","CIRCULAR ECONOMY MANDATE: Collect $75","INVESTOR EXIT: Pay $50","SUPPLY CHAIN DISRUPTION: Trade owners pay $25"];
-const finance=["CONCESSIONAL FINANCE: Collect $100","PROJECT PREPARATION: Buy at 50% discount","DECARB GRANT: Collect $150","SOVEREIGN GUARANTEE: Rent -15 on green","EXPORT CREDIT: Gain 1 Trade Token","SKILLS PROGRAMME: Collect $100","COST OVERRUN: Pay $50","PERMITTING DELAY: Miss next turn"];
-let pos=0,cash=1500,tokens=0,dp=0;
-function update(){document.getElementById('cash').innerText='$'+cash;document.getElementById('tokens').innerText=tokens;document.getElementById('dp').innerText=dp;document.getElementById('final').innerText=cash+tokens*100+dp*200}
-function roll(){let d1=Math.floor(Math.random()*6)+1,d2=Math.floor(Math.random()*6)+1,total=d1+d2;pos=(pos+total)%board.length;if(pos==0){cash+=200;tokens++}document.getElementById('dice').innerText=d1+' + '+d2+' = '+total;document.getElementById('status').innerText='Landed on: '+board[pos];update()}
-function drawChance(){let c=chance[Math.floor(Math.random()*chance.length)];document.getElementById('status').innerText='TRANSITION CHANCE: '+c;if(c.includes('$150')){cash+=150;tokens++}else if(c.includes('$100'))cash+=100;else if(c.includes('$75'))cash+=75;else if(c.includes('$50')&&c.includes('Collect'))cash+=50;else if(c.includes('Pay'))cash-=50;update()}
-function drawFinance(){let c=finance[Math.floor(Math.random()*finance.length)];document.getElementById('status').innerText='DEVELOPMENT FINANCE: '+c;if(c.includes('$100'))cash+=100;else if(c.includes('$150'))cash+=150;else if(c.includes('Pay'))cash-=50;else if(c.includes('Trade Token'))tokens++;update()}
-update();
+const BOARD=[{id:0,name:"GO - National Green Industrial Strategy",type:"go"},{id:1,name:"COAL MINE",type:"property",price:60,rent:10,corridor:"Fossil",color:"#7a5a3a"},{id:2,name:"OIL & GAS FIELD",type:"property",price:80,rent:15,corridor:"Fossil",color:"#7a5a3a"},{id:3,name:"FOSSIL FUEL POWER PLANT",type:"property",price:100,rent:20,corridor:"Fossil",color:"#7a5a3a"},{id:4,name:"TRANSITION CHANCE",type:"chance"},{id:5,name:"SCRAP SUPPLY",type:"property",price:120,rent:25,corridor:"Utility",color:"#5b9bd5",dp:1},{id:6,name:"RECYCLED WATER UTILITY",type:"property",price:140,rent:30,corridor:"Utility",color:"#5b9bd5",dp:1},{id:7,name:"RENEWABLE ELECTRICITY GRID",type:"property",price:180,rent:40,corridor:"Utility",color:"#5b9bd5",dp:1},{id:8,name:"DEVELOPMENT FINANCE",type:"finance"},{id:9,name:"CARBON LOCK-IN ZONE (JAIL)",type:"jail"},{id:10,name:"SCRAP PROCESSING CENTRE",type:"property",price:160,rent:32,corridor:"Circular",color:"#8abf7a",dp:1},{id:11,name:"BATTERY RECYCLING FACILITY",type:"property",price:220,rent:45,corridor:"Circular",color:"#8abf7a",dp:1},{id:12,name:"INDUSTRIAL HEAT NETWORK",type:"property",price:240,rent:50,corridor:"Circular",color:"#8abf7a",dp:1},{id:13,name:"INDUSTRIAL SYMBIOSIS PARK",type:"property",price:300,rent:65,corridor:"Circular",color:"#8abf7a",dp:1},{id:14,name:"TRANSITION CHANCE",type:"chance"},{id:15,name:"DEVELOPMENT FINANCE",type:"finance"},{id:16,name:"EAF STEEL PLANT",type:"property",price:200,rent:40,corridor:"Steel",color:"#a0a0a0",dp:1},{id:17,name:"DRI PLANT",type:"property",price:260,rent:55,corridor:"Steel",color:"#a0a0a0",dp:1},{id:18,name:"HBI TRADE TERMINAL",type:"property",price:320,rent:75,corridor:"Steel",color:"#a0a0a0",dp:1},{id:19,name:"INDUSTRIAL PARTNERSHIP HUB",type:"hub"},{id:20,name:"TRANSITION CHANCE",type:"chance"},{id:21,name:"BILATERAL TRADE AGREEMENT",type:"property",price:120,rent:28,corridor:"Trade",color:"#e2a44a",token:1},{id:22,name:"STRATEGIC EXPORT PARTNERSHIP",type:"property",price:260,rent:60,corridor:"Trade",color:"#e2a44a",token:1},{id:23,name:"GREEN TRADE CORRIDOR",type:"property",price:340,rent:70,corridor:"Trade",color:"#e2a44a",token:1},{id:24,name:"DEVELOPMENT FINANCE",type:"finance"},{id:25,name:"ELECTROLYSER HUB",type:"property",price:220,rent:45,corridor:"Hydrogen",color:"#2ec4b6",dp:1},{id:26,name:"HYDROGEN STORAGE",type:"property",price:280,rent:55,corridor:"Hydrogen",color:"#2ec4b6",dp:1},{id:27,name:"HYDROGEN EXPORT TERMINAL",type:"property",price:360,rent:75,corridor:"Hydrogen",color:"#2ec4b6",dp:1,token:1}];
+const CHANCE_MASTER=["CBAM INTRODUCED: If you own Steel (EAF/DRI/HBI), collect $150 + 1 Token","GREEN PUBLIC PROCUREMENT: Collect $50","HYDROGEN DEMAND SURGE: Collect $100","CIRCULAR ECONOMY MANDATE: If Circular asset, collect $75","FOSSIL FUEL PRICE SPIKE: Collect $25 from each other player","RENEWABLE ENERGY AUCTION: Collect $25 from each other","INVESTOR EXIT: Pay $50 to Bank","SUPPLY CHAIN DISRUPTION: Trade/Circular owners pay $25 to Bank","CARBON BORDER COST: If Fossil assets, Pay $30","TECH BREAKTHROUGH: Collect $120 + 1 DP","TRADE MISSION SUCCESS: Collect $80 + 1 Token","JUST TRANSITION FUND: Collect $60, Fossil owners pay $20 extra"];
+const FINANCE_MASTER=["CONCESSIONAL FINANCE: Collect $100","DECARB GRANT: If Steel or Electrolyser, collect $150","EXPORT CREDIT: If Green Corridor or H2 Export, +1 Token","SKILLS PROGRAMME: Collect $100","PROJECT PREPARATION: Move to nearest unowned 50% off","SOVEREIGN GUARANTEE: Next rent 50% off","COST OVERRUN: Pay $50","PERMITTING DELAY: Miss next turn","BLENDED FINANCE: Collect $70 +1 DP if green asset","CARBON CONTRACT: Collect $90 if EAF/DRI","DE-RISKING INSTRUMENT: Free jail exit","FEASIBILITY STUDY: Collect $40 + another Finance card"];
+function shuffle(a){let b=[...a];for(let i=b.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
+let chanceDeck=shuffle(CHANCE_MASTER),financeDeck=shuffle(FINANCE_MASTER);
+function drawDeck(t){if(t==='chance'){if(!chanceDeck.length){chanceDeck=shuffle(CHANCE_MASTER);alert('Chance deck reshuffled!');}return chanceDeck.pop();}else{if(!financeDeck.length){financeDeck=shuffle(FINANCE_MASTER);alert('Finance deck reshuffled!');}return financeDeck.pop();}}
+const COLORS=["#e63946","#2a9d8f","#264653","#f4a261"];
+let players=[0][1][2][3].map(i=>({id:i,name:`Player ${i+1}`,pos:0,cash:500,tokens:0,dp:0,props:[],color:COLORS[i],jailed:0,shield:false,freeJail:false}));
+let cur=0,positions=[];
+function calcPositions(){const w=document.getElementById('boardWrap').clientWidth,h=document.getElementById('boardWrap').clientHeight,m=28,n=28,pts=[];for(let i=0;i<n;i++){let t=i/n,x,y;if(t<0.25){x=w-m-t/0.25*(w-2*m);y=h-m-6;}else if(t<0.5){x=m;y=h-m-(t-0.25)/0.25*(h-2*m);}else if(t<0.75){x=m+(t-0.5)/0.25*(w-2*m);y=m;}else{x=w-m;y=m+(t-0.75)/0.25*(h-2*m);}pts.push({x:x-9,y:y-9});}positions=pts;}
+function renderPlayers(){const el=document.getElementById('players');el.innerHTML=players.map((p,i)=>{const final=p.cash+p.tokens*100+p.dp*200;return `<div class="player-card ${i===cur?'active':''}"><div><span class="dot" style="background:${p.color}"></span> <b>${p.name}</b> ${p.jailed?'🔒Jailed':''} ${p.shield?'🛡️Shield':''} ${p.freeJail?'🎟️Free':''}</div><div style="margin-top:6px"><span class="badge">$${p.cash}</span><span class="badge">${p.tokens} Tokens×100</span><span class="badge">${p.dp} DP×200</span><span class="badge" style="background:#2a5a2a;color:white">Final ${final}</span></div><div class="small" style="margin-top:4px">${p.props.length?'Owns: '+p.props.map(id=>BOARD[id].name).join(', '):'No properties — $500 start'}</div></div>`}).join('');document.getElementById('turnInfo').innerText=`${players[cur].name} | $${players[cur].cash} | C:${chanceDeck.length} F:${financeDeck.length}`;document.getElementById('chanceCount').innerText=`Chance: ${chanceDeck.length}/${CHANCE_MASTER.length}`;document.getElementById('financeCount').innerText=`Finance: ${financeDeck.length}/${FINANCE_MASTER.length}`;}
+function renderGrid(){document.getElementById('boardGrid').innerHTML=BOARD.map(b=>{const owner=players.find(p=>p.props.includes(b.id));return `<div class="tile" style="border-left-color:${b.color||'#ccc'}"><b>${b.name}</b><br>${b.price?'$'+b.price+' / Rent $'+b.rent:''}<br><span class="small">${b.corridor||''} ${b.dp?'+1 DP':''} ${b.token?'+1 Token':''}</span><br><span class="small">${owner?'Owned: '+owner.name:(b.type==='property'?'UNOWNED $'+b.price:'')}</span></div>`}).join('');}
+function renderDots(){const layer=document.getElementById('tokenLayer');layer.innerHTML='';players.forEach(p=>{const pt=positions[p.pos]||{x:20,y:20};const d=document.createElement('div');d.className='player-dot';d.style.background=p.color;d.style.left=pt.x+(p.id*10)+'px';d.style.top=pt.y+(p.id*8)+'px';d.innerText=p.id+1;layer.appendChild(d);});}
+function closeModal(){document.getElementById('modal').classList.remove('show');}
+function showModal(t,b,a1,f1,a2,f2){document.getElementById('mTitle').innerText=t;document.getElementById('mBody').innerHTML=b;const b1=document.getElementById('mAction1'),b2=document.getElementById('mAction2');b1.innerText=a1||'OK';b1.onclick=()=>{closeModal();if(f1)f1();};if(a2){b2.innerText=a2;b2.style.display='inline-block';b2.onclick=()=>{closeModal();if(f2)f2();};}else b2.style.display='none';document.getElementById('modal').classList.add('show');}
+function applyCard(text,p){
+ let extra='';
+ if(text.includes('Collect $150')||text.includes('collect $150')){if(p.props.some(id=>[16,17,18].includes(id))){p.cash+=150;p.tokens+=1;extra='✅ Steel owned: +$150 +1 Token';}else extra='❌ No Steel asset';}
+ else if(text.includes('Collect $50')){p.cash+=50;extra='+ $50';}
+ else if(text.includes('Collect $100')&&text.includes('HYDROGEN DEMAND')){p.cash+=100;extra='+ $100';}
+ else if(text.includes('collect $75')){if(p.props.some(id=>BOARD[id].corridor==='Circular')){p.cash+=75;extra='+ $75';}else extra='No Circular';}
+ else if(text.includes('Collect $25 from each')){players.forEach(o=>{if(o.id!==p.id){o.cash-=25;p.cash+=25;}});extra='+ $25 from each';}
+ else if(text.includes('Pay $50')&&text.includes('INVESTOR')){p.cash-=50;extra='- $50';}
+ else if(text.includes('pay $25')){if(p.props.some(id=>['Trade','Circular'].includes(BOARD[id].corridor||''))){p.cash-=25;extra='- $25';}else extra='Not affected';}
+ else if(text.includes('Pay $30')){if(p.props.some(id=>BOARD[id].corridor==='Fossil')){p.cash-=30;extra='- $30 Fossil';}}
+ else if(text.includes('TECH BREAKTHROUGH')){p.cash+=120;p.dp+=1;extra='+ $120 +1 DP';}
+ else if(text.includes('TRADE MISSION')){p.cash+=80;p.tokens+=1;extra='+ $80 +1 Token';}
+ else if(text.includes('JUST TRANSITION')){p.cash+=60;extra='+ $60'; if(p.props.some(id=>BOARD[id].corridor==='Fossil')){p.cash-=20;extra+=' - $20 Fossil';}}
+ else if(text.includes('CONCESSIONAL')){p.cash+=100;extra='+ $100';}
+ else if(text.includes('DECARB GRANT')){if(p.props.some(id=>[16,17,18,25].includes(id))){p.cash+=150;extra='+ $150';}else extra='No Steel/H2';}
+ else if(text.includes('EXPORT CREDIT')){if(p.props.some(id=>[23][27].includes(id))){p.tokens+=1;extra='+1 Token';}else extra='Need Green Corridor/H2 Export';}
+ else if(text.includes('SKILLS')){p.cash+=100;extra='+ $100';}
+ else if(text.includes('50% off')&&text.includes('Move to nearest')){let nearest=null,dist=99;BOARD.forEach(b=>{if(b.type==='property' &&!players.some(pl=>pl.props.includes(b.id))){let d=(b.id-p.pos+28)%28;if(d>0&&d<dist){dist=d;nearest=b;}}});if(nearest){showModal('Project Prep - 50% OFF',`Move to <b>${nearest.name}</b> for $${Math.floor(nearest.price/2)} instead of $${nearest.price}?<br><br>${text}`,'BUY 50% OFF $'+Math.floor(nearest.price/2),()=>{p.pos=nearest.id;p.cash-=Math.floor(nearest.price/2);p.props.push(nearest.id);if(nearest.dp)p.dp+=nearest.dp;if(nearest.token)p.tokens+=nearest.token;renderAll();},'SKIP','');return 'Moving...';}else extra='No unowned';}
+ else if(text.includes('rent')&&text.includes('50%')){p.shield=true;extra='🛡️ Shield for next rent';}
+ else if(text.includes('COST OVERRUN')){p.cash-=50;extra='- $50';}
+ else if(text.includes('Miss next turn')||text.includes('PERMITTING')){p.jailed=1;extra='🔒 Miss next turn';}
+ else if(text.includes('BLENDED')){if(p.props.some(id=>BOARD[id].dp)){p.cash+=70;p.dp+=1;extra='+ $70 +1 DP';}else extra='Need green asset';}
+ else if(text.includes('CARBON CONTRACT')){if(p.props.some(id=>[16][17].includes(id))){p.cash+=90;extra='+ $90';}else extra='Need EAF/DRI';}
+ else if(text.includes('DE-RISKING')){p.freeJail=true;extra='🎟️ Free jail card';}
+ else if(text.includes('FEASIBILITY')){p.cash+=40;extra='+ $40 + another card';setTimeout(()=>{let ex=drawDeck('finance');applyCard(ex,p);renderAll();},400);}
+ return extra;
+}
+function handleLanding(p){
+ const tile=BOARD[p.pos];let base=`Landed on <b>${tile.name}</b>`;
+ if(tile.type==='go'){p.cash+=200;p.tokens+=1;base+=`<br>GO: +$200 +1 Token → $${p.cash}, ${p.tokens} Tokens`;document.getElementById('status').innerHTML=base;}
+ else if(tile.type==='property'){
+   const owner=players.find(pl=>pl.props.includes(tile.id));
+   if(!owner){
+     showModal(`BUY ${tile.name}?`,`${base}<br><br><b>Price $${tile.price}</b> | Rent $${tile.rent} ${tile.dp?'+1 DP':''} ${tile.token?'+1 Token':''}<br>Corridor: ${tile.corridor}<br>Your cash: $${p.cash}<br><br>Choose BUY or SKIP — if SKIP, it stays unowned for others.`,`BUY for $${tile.price}`,()=>{if(p.cash>=tile.price){p.cash-=tile.price;p.props.push(tile.id);if(tile.dp)p.dp+=tile.dp;if(tile.token)p.tokens+=tile.token;document.getElementById('status').innerHTML=`✅ ${p.name} bought ${tile.name} for $${tile.price} → Cash $${p.cash} DP ${p.dp} Tokens ${p.tokens}`;renderAll();}else{showModal('Not enough cash!',`You have $${p.cash}, need $${tile.price}`,'OK',()=>{});}},`SKIP (Don't Buy)`,()=>{document.getElementById('status').innerHTML=`⏭️ ${p.name} skipped ${tile.name}. Unowned.`;renderAll();});
+     return;
+   }else if(owner.id!==p.id){
+     let rent=tile.rent;let note='';if(p.shield){rent=Math.floor(rent/2);p.shield=false;note='🛡️ Shield 50% off! ';}p.cash-=rent;owner.cash+=rent;
+     showModal('Pay Rent',`${base}<br>Owned by <b>${owner.name}</b><br>${note}Rent $${tile.rent} → Pay $${rent}<br>Your cash $${p.cash}`,'Pay $'+rent,()=>{renderAll();});
+     return;
+   }else{document.getElementById('status').innerHTML=`${base}<br>You own this!`; }
+ }
+ else if(tile.type==='chance'){
+   const card=drawDeck('chance');const res=applyCard(card,p);
+   if(!res.includes('Moving')){showModal('Transition Chance',`<b>${card}</b><br><br>${res}<br><br>Cash $${p.cash} | Tokens ${p.tokens} | DP ${p.dp}`,'OK',()=>{renderAll();});}
+   return;
+ }
+ else if(tile.type==='finance'){
+   const card=drawDeck('finance');const res=applyCard(card,p);
+   if(!res.includes('Moving')){showModal('Development Finance',`<b>${card}</b><br><br>${res}<br><br>Cash $${p.cash} | Tokens ${p.tokens} | DP ${p.dp}`,'OK',()=>{renderAll();});}
+   return;
+ }
+ else if(tile.type==='jail'){
+   if(p.freeJail){p.freeJail=false;document.getElementById('status').innerHTML=`${base}<br>🎟️ Free jail card used!`;renderAll();return;}
+   p.jailed=1;showModal('CARBON LOCK-IN!',`${base}<br><br>Stuck in Carbon Lock-in! Pay $100 now or miss next turn.<br>Cash $${p.cash}`,'Pay $100',()=>{p.cash-=100;p.jailed=0;renderAll();},'Stay (Miss next)',()=>{renderAll();});
+   return;
+ }
+ else if(tile.type==='hub'){p.tokens+=1;document.getElementById('status').innerHTML=`${base}<br>Partnership Hub: +1 Trade Token → ${p.tokens}`;}
+ renderPlayers();renderGrid();
+}
+function roll(){const p=players[cur];if(p.jailed){if(p.freeJail){showModal('Use Free Jail?',`Use free jail card to avoid missing turn?`,'Use Free',()=>{p.freeJail=false;p.jailed=0;renderAll();},'Stay Jailed',()=>{p.jailed--;renderAll();});}else{document.getElementById('status').innerHTML=`🔒 ${p.name} in Carbon Lock-in — turn skipped`;p.jailed--;renderPlayers();}return;}const d1=Math.floor(Math.random()*6)+1,d2=Math.floor(Math.random()*6)+1,total=d1+d2;document.getElementById('dice').innerText=`${d1} + ${d2} = ${total}`;const old=p.pos;p.pos=(p.pos+total)%BOARD.length;if(p.pos<old){p.cash+=200;p.tokens+=1;}renderDots();setTimeout(()=>handleLanding(p),350);}
+function nextPlayer(){cur=(cur+1)%players.length;document.getElementById('status').innerHTML=`➡️ ${players[cur].name}'s turn at ${BOARD[players[cur].pos].name} | $${players[cur].cash}`;renderPlayers();}
+function drawCard(t){const p=players[cur];const card=drawDeck(t);const res=applyCard(card,p);if(!res.includes('Moving')){showModal(t==='chance'?'Transition Chance':'Development Finance',`<b>${card}</b><br><br>${res}`,'OK',()=>{renderAll();});}else renderAll();}
+function renderAll(){calcPositions();renderDots();renderPlayers();renderGrid();}
+window.addEventListener('load',renderAll);window.addEventListener('resize',renderAll);renderAll();
 </script>
 </body>
 </html>
