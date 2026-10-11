@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Industrial Tradeopoly</title>
+<style>
+:root{--green:#2a5a2a;--cream:#f5f1e6}
+body{margin:0;font-family:system-ui,sans-serif;background:var(--cream)}
+header{background:var(--green);color:white;padding:18px;text-align:center}
+header h1{margin:0}
+.wrap{max-width:1100px;margin:0 auto;padding:12px}
+.board{background:white;border-radius:14px;padding:10px;box-shadow:0 6px 24px rgba(0,0,0,.12)}
+.board img{width:100%;border-radius:10px}
+.panel{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0}
+@media(max-width:800px){.panel{grid-template-columns:1fr}}
+.card{background:white;border-radius:14px;padding:16px;box-shadow:0 6px 24px rgba(0,0,0,.12)}
+.btn{background:var(--green);color:white;border:none;padding:12px 18px;border-radius:10px;font-weight:700;cursor:pointer;margin:4px}
+.dice{font-size:40px;font-weight:800;min-height:56px;display:flex;align-items:center;justify-content:center;background:#f0ece0;border-radius:10px}
+.status{min-height:70px;background:#f7f3e8;border:2px dashed #c9bfa1;border-radius:10px;padding:12px;display:flex;align-items:center;font-weight:600}
+.score{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+.score div{background:#f0ece0;border-radius:10px;padding:10px}
+.score b{display:block;font-size:20px;color:var(--green)}
+</style>
+</head>
+<body>
+<header>
+<h1>INDUSTRIAL TRADEOPOLY</h1>
+<p>BUILD. TRANSFORM. TRADE. THRIVE.</p>
+</header>
+<div class="wrap">
+<div class="board"><img src="board.jpg" alt="Board"></div>
+<div class="panel">
+<div class="card">
+<h3> Game Controls</h3>
+<div class="dice" id="dice">Roll to start</div>
+<div style="text-align:center;margin:10px 0">
+<button class="btn" onclick="roll()">ROLL DICE</button>
+<button class="btn" style="background:#444" onclick="drawChance()">TRANSITION CHANCE?</button>
+<button class="btn" style="background:#444" onclick="drawFinance()">DEVELOPMENT FINANCE</button>
+</div>
+<div class="status" id="status">Start at GO: National Green Industrial Strategy. Collect $200 + 1 Trade Token.</div>
+<div class="score" style="margin-top:14px">
+<div><b id="cash">$1500</b>Cash</div>
+<div><b id="tokens">0</b>Trade Tokens x100</div>
+<div><b id="dp">0</b>DP x200</div>
+</div>
+<p style="text-align:center;font-weight:800">Final Score: <span id="final">1500</span></p>
+</div>
+<div class="card">
+<h3> Your Corridors</h3>
+<p><b>GO:</b> +$200 +1 Token</p>
+<p>1. Fossil $60-$100, 2. Utility $120-$180, 3. Circular $160-$300, 4. Trade $120-$340, 5. Steel $200-$320, 6. Hydrogen $220-$360</p>
+<p><b>Final Score = Cash + Tokens×100 + DP×200</b></p>
+<p><small>Original game. Not affiliated with Hasbro MONOPOLY®</small></p>
+</div>
+</div>
+<div class="card"><h3>Card Set</h3><img src="cards.jpg" style="width:100%;border-radius:10px"></div>
+</div>
+<script>
+const board=["GO (+$200 +1 Token)","COAL MINE $60","OIL & GAS FIELD $80","FOSSIL FUEL POWER PLANT $100","TRANSITION CHANCE","SCRAP SUPPLY $120","RECYCLED WATER $140","RENEWABLE GRID $180","DEVELOPMENT FINANCE","CARBON LOCK-IN JAIL","SCRAP PROCESSING $160","BATTERY RECYCLING $220","HEAT NETWORK $240","SYMBIOSIS PARK $300","CHANCE","FINANCE","EAF STEEL $200","DRI PLANT $260","HBI TERMINAL $320","PARTNERSHIP HUB","CHANCE","BILATERAL TRADE $120","STRATEGIC EXPORT $260","GREEN CORRIDOR $340","FINANCE","ELECTROLYSER $220","H2 STORAGE $280","H2 EXPORT $360"];
+const chance=["FOSSIL FUEL PRICE SPIKE: Collect $25 from each player","RENEWABLE ENERGY AUCTION: Collect $25 from each","CBAM INTRODUCED: Collect $150 + 1 Trade Token","GREEN PUBLIC PROCUREMENT: Collect $50","HYDROGEN DEMAND SURGE: Collect $100","CIRCULAR ECONOMY MANDATE: Collect $75","INVESTOR EXIT: Pay $50","SUPPLY CHAIN DISRUPTION: Trade owners pay $25"];
+const finance=["CONCESSIONAL FINANCE: Collect $100","PROJECT PREPARATION: Buy at 50% discount","DECARB GRANT: Collect $150","SOVEREIGN GUARANTEE: Rent -15 on green","EXPORT CREDIT: Gain 1 Trade Token","SKILLS PROGRAMME: Collect $100","COST OVERRUN: Pay $50","PERMITTING DELAY: Miss next turn"];
+let pos=0,cash=1500,tokens=0,dp=0;
+function update(){document.getElementById('cash').innerText='$'+cash;document.getElementById('tokens').innerText=tokens;document.getElementById('dp').innerText=dp;document.getElementById('final').innerText=cash+tokens*100+dp*200}
+function roll(){let d1=Math.floor(Math.random()*6)+1,d2=Math.floor(Math.random()*6)+1,total=d1+d2;pos=(pos+total)%board.length;if(pos==0){cash+=200;tokens++}document.getElementById('dice').innerText=d1+' + '+d2+' = '+total;document.getElementById('status').innerText='Landed on: '+board[pos];update()}
+function drawChance(){let c=chance[Math.floor(Math.random()*chance.length)];document.getElementById('status').innerText='TRANSITION CHANCE: '+c;if(c.includes('$150')){cash+=150;tokens++}else if(c.includes('$100'))cash+=100;else if(c.includes('$75'))cash+=75;else if(c.includes('$50')&&c.includes('Collect'))cash+=50;else if(c.includes('Pay'))cash-=50;update()}
+function drawFinance(){let c=finance[Math.floor(Math.random()*finance.length)];document.getElementById('status').innerText='DEVELOPMENT FINANCE: '+c;if(c.includes('$100'))cash+=100;else if(c.includes('$150'))cash+=150;else if(c.includes('Pay'))cash-=50;else if(c.includes('Trade Token'))tokens++;update()}
+update();
+</script>
+</body>
+</html>
