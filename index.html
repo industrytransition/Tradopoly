@@ -1,26 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Tradeopoly v6 — Mobile Big Board</title>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tradeopoly v7 — No Timeline + Trade Options + Detailed Cards</title>
 <style>
 :root{--green:#2a5a2a;--cream:#f5f1e6}*{box-sizing:border-box}body{margin:0;font-family:system-ui,sans-serif;background:var(--cream)}
 header{background:var(--green);color:white;padding:12px;text-align:center;position:sticky;top:0;z-index:20}
-.btn{background:var(--green);color:white;border:none;padding:12px 16px;border-radius:10px;font-weight:800;cursor:pointer;margin:4px}.btn.sec{background:#222}.btn:disabled{opacity:.35}
+.btn{background:var(--green);color:white;border:none;padding:11px 14px;border-radius:10px;font-weight:800;cursor:pointer;margin:4px}.btn.sec{background:#222}.btn.warn{background:#b45309}.btn:disabled{opacity:.35}
 .wrap{max-width:900px;margin:0 auto;padding:8px}.card{background:white;border-radius:14px;padding:12px;margin:8px 0;box-shadow:0 6px 20px rgba(0,0,0,.06)}
-.board-wrap{position:relative;background:white;border-radius:12px;padding:4px;width:100%;overflow:hidden}.board-wrap img{width:100%;display:block;border-radius:8px;min-height:300px;object-fit:contain}
+.board-wrap{position:relative;background:white;border-radius:12px;padding:4px;width:100%}.board-wrap img{width:100%;display:block;border-radius:8px}
 .token-layer{position:absolute;inset:4px;pointer-events:none}.player-dot{position:absolute;width:26px;height:26px;border-radius:50%;border:2.5px solid white;box-shadow:0 3px 8px rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;color:white;font-weight:900;font-size:12px;transition:all.6s;z-index:5}
-.dice{font-size:28px;font-weight:900;background:#f0ece0;border-radius:10px;min-height:56px;display:flex;align-items:center;justify-content:center}
-.status{border:2px dashed #c9bfa1;background:#f7f3e8;border-radius:10px;padding:10px;font-weight:600;min-height:60px}.status.flash2030{background:#fff3cd;border-color:#d4a017;animation:blink 1s infinite}.status.flash2050{background:#f8d7da;border-color:#c00;animation:blink.6s infinite}
-@keyframes blink{50%{opacity:.4}}
+.dice{font-size:26px;font-weight:900;background:#f0ece0;border-radius:10px;min-height:52px;display:flex;align-items:center;justify-content:center}
+.status{background:#f7f3e8;border:2px dashed #c9bfa1;border-radius:10px;padding:10px;font-weight:600;min-height:60px}
 .player-card{border:2px solid #e5e0cf;border-radius:12px;padding:10px;margin-top:8px;background:#fffcf0}.player-card.active{border-color:var(--green);box-shadow:0 0 0 3px rgba(42,90,42,.18)}
 .badge{display:inline-block;padding:3px 8px;border-radius:999px;background:#eee;font-size:11px;margin:2px}
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:50;padding:12px}.modal.show{display:flex}.modal-box{background:white;border-radius:16px;padding:16px;max-width:520px;width:100%;max-height:90vh;overflow:auto}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:50;padding:12px}.modal.show{display:flex}.modal-box{background:white;border-radius:16px;padding:16px;max-width:560px;width:100%;max-height:92vh;overflow:auto}
 footer{text-align:center;padding:14px;font-size:12px;color:#555}
 input{padding:12px;border-radius:10px;border:2px solid #ddd;font-weight:700;width:100%;margin-top:6px}
-/* Mobile first: board on top, controls below */
 .game-layout{display:flex;flex-direction:column;gap:10px}
-@media(min-width:900px){.game-layout{flex-direction:row}.game-layout.board-wrap{flex:1.4}.game-layout.controls{flex:.8}}
 </style>
 <script type="importmap">{"imports":{"firebase/app":"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js","firebase/firestore":"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"}}</script>
 </head>
@@ -28,28 +25,28 @@ input{padding:12px;border-radius:10px;border:2px solid #ddd;font-weight:700;widt
 <header>
 <h1 style="margin:0;font-size:20px">INDUSTRIAL TRADEOPOLY</h1>
 <div id="roomInfo" style="font-size:12px;margin-top:4px"></div>
-<div id="timelineInfo" style="margin-top:6px;font-weight:800;background:white;color:#222;display:inline-block;padding:5px 12px;border-radius:999px;font-size:13px">⏱️ 2025 — Game start</div>
 </header>
 <div class="wrap">
 <div class="card" id="lobby">
-<div style="display:flex;justify-content:space-between;align-items:center"><h2 style="margin:0">Lobby</h2><button class="btn sec" onclick="document.getElementById('helpModal').classList.add('show')" style="font-size:12px;padding:6px 10px">ⓘ How to Play</button></div>
+<div style="display:flex;justify-content:space-between"><h2 style="margin:0">Lobby</h2><button class="btn sec" onclick="document.getElementById('helpModal').classList.add('show')" style="font-size:11px">ⓘ How to Play & Cards</button></div>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
-<div><input id="hostName" value="Host" placeholder="Your name"><button class="btn" onclick="createRoom()" style="width:100%;margin-top:6px">Create Room</button><div class="small" style="font-size:11px;color:#666;margin-top:4px">Creates 1/4 — share code</div></div>
-<div><input id="joinName" placeholder="Your name"><input id="joinCode" placeholder="GREEN-42" style="margin-top:6px"><button class="btn sec" onclick="joinRoom()" style="width:100%;margin-top:6px">Join Room</button><div id="joinStatus" style="font-size:11px"></div></div>
+<div><input id="hostName" value="Host"><button class="btn" onclick="createRoom()" style="width:100%;margin-top:6px">Create Room</button></div>
+<div><input id="joinName" placeholder="Name"><input id="joinCode" placeholder="GREEN-42" style="margin-top:6px"><button class="btn sec" onclick="joinRoom()" style="width:100%;margin-top:6px">Join</button><div id="joinStatus" style="font-size:11px"></div></div>
 </div>
-<button class="btn sec" onclick="playSolo()" style="width:100%;margin-top:10px">Play Solo / Hot-Seat (4P on one phone)</button>
+<button class="btn sec" onclick="playSolo()" style="width:100%;margin-top:10px">Play Solo / Hot-Seat (4P)</button>
 </div>
 
 <div class="card" id="gameCard" style="display:none">
 <div class="game-layout">
 <div class="board-wrap" id="boardWrap"><img src="board.jpg" id="boardImg"><div class="token-layer" id="tokenLayer"></div></div>
-<div class="controls">
+<div>
 <div class="dice" id="dice">Roll to start</div>
-<button class="btn" id="rollBtn" onclick="roll()" style="width:100%;padding:16px;font-size:18px;margin-top:8px">🎲 ROLL</button>
+<button class="btn" id="rollBtn" onclick="roll()" style="width:100%;padding:16px;font-size:18px;margin-top:8px">🎲 ROLL DICE</button>
 <div id="turnInfo" style="font-size:12px;margin-top:6px;font-weight:700"></div>
-<div class="status" id="status" style="margin-top:8px">Waiting...</div>
+<div class="status" id="status" style="margin-top:8px">Create room or Solo. Only current player can roll.</div>
+<div style="display:flex;gap:6px;margin-top:8px"><button class="btn warn" onclick="endGame()" style="flex:1">🏁 END GAME & SHOW SCORE</button></div>
 <div id="players"></div>
-<div id="log" style="font-size:11px;max-height:110px;overflow:auto;margin-top:8px;background:#fffcf0;padding:8px;border-radius:8px"></div>
+<div id="log" style="font-size:11px;max-height:120px;overflow:auto;margin-top:8px;background:#fffcf0;padding:8px;border-radius:8px"></div>
 </div>
 </div>
 </div>
@@ -57,13 +54,39 @@ input{padding:12px;border-radius:10px;border:2px solid #ddd;font-weight:700;widt
 
 <footer>Questions? Contact <b>Kajol</b> — <a href="mailto:kajol@agora-industrie.de">kajol@agora-industrie.de</a></footer>
 
-<div class="modal" id="modal"><div class="modal-box"><h3 id="mTitle"></h3><div id="mBody"></div><div style="display:flex;gap:8px;margin-top:12px"><button class="btn" id="mAction1"></button><button class="btn sec" id="mAction2"></button></div></div></div>
+<div class="modal" id="modal"><div class="modal-box"><h3 id="mTitle"></h3><div id="mBody"></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn" id="mAction1"></button><button class="btn sec" id="mAction2"></button><button class="btn sec" id="mAction3" style="display:none"></button></div></div></div>
 
-<div class="modal" id="helpModal"><div class="modal-box"><h3>How to Play</h3>
-<p><b>Final Score:</b> Cash + Tokens×100 + DP×200. Highest wins.</p>
-<p><b>Steps:</b> Roll → Move → BUY (pay price) or SKIP → auto next. If owned, pay rent. Pass GO +$200+1T. Only current player can roll.</p>
-<p><b>Timeline (auto):</b><br>2025 (0-10m): Normal<br>2030 (10m): Flash. If own Fossil ($60/$80/$100), choose Sell (pay 50% to bank) or Skip risky.<br>2050 (20m): Fossil stranded, rent $0, pay $200 closure.</p>
-<p><b>DP:</b> From green assets. <b>Tokens:</b> From Trade/Hydrogen.</p>
+<div class="modal" id="helpModal"><div class="modal-box">
+<h3>How to Play — Detailed</h3>
+<p><b>Final Score:</b> Cash + Trade Tokens×$100 + DP (Decarbonisation Points)×$200. Highest wins.</p>
+<p><b>Trade Tokens:</b> Renamed from Tokens. Earned when: 1) You pass GO (+1), 2) You buy Trade Corridor assets (Bilateral, Strategic, Green Corridor, H2 Export) — each gives +1 Trade Token, 3) You land on <b>Industrial Partnership Hub</b> and do a Trade (Option A or B) — you get Trade Tokens, 4) From Chance/Finance cards.</p>
+<p><b>Industrial Partnership Hub — Trade Options:</b><br>
+<b>Option A — Trade a Property:</b> Swap one of your properties with another player's property (both must agree in real life — game just records swap). You both get +1 Trade Token for trading.<br>
+<b>Option B — Share a Property:</b> Choose one of your properties to share. You keep ownership but you give another player shared access. You get +1 Trade Token immediately, and rent is split 50/50 when others land. (Simplified: sharer gets rent half).<br>
+If you don't want to trade, take +1 Trade Token as partnership bonus.
+</p>
+<p><b>Transition Chance (Blue?): Detailed cards:</b></p>
+<ul style="font-size:13px">
+<li><b>CBAM Shock:</b> EU Carbon Border Adjustment Mechanism hits. If you own Steel (EAF/DRI/HBI) you get green premium +$150 +1 Trade Token. If not, no bonus. Teaches CBAM impact.</li>
+<li><b>Green Public Procurement:</b> Govt mandates green steel. You get +$60 procurement payment.</li>
+<li><b>H2 Demand Surge:</b> Hydrogen demand spikes. +$100. If you own any Hydrogen (Electrolyser/Storage/Export) +1 DP extra.</li>
+<li><b>Circular Economy Mandate:</b> EU mandates recycled content. If you own Circular (Scrap Processing/Battery/Heat/Symbiosis) +$75 per Circular asset you own.</li>
+<li><b>Tech Breakthrough — DRI:</b> Breakthrough in green DRI cuts costs. +$120 +1 DP (Decarbonisation Point).</li>
+<li><b>Trade Mission:</b> You join green trade mission to Global South. +$80 +1 Trade Token.</li>
+<li><b>Fossil Price Spike:</b> Oil spikes. If you own Fossil (Coal/Oil/Fossil Power) you collect $25 from each other player.</li>
+<li><b>Carbon Cost:</b> If you still own Fossil, pay $30 carbon cost. No fossil = no cost (incentive to divest).</li>
+</ul>
+<p><b>Development Finance (Green Bank): Detailed:</b></p>
+<ul style="font-size:13px">
+<li><b>Concessional Loan:</b> Low-interest loan for green project. +$100 cash.</li>
+<li><b>Decarb Grant:</b> Grant for Steel or Hydrogen decarbonisation. If you own EAF/DRI/HBI or Electrolyser/Storage/Export, +$150.</li>
+<li><b>Export Credit:</b> Trade finance. If you own Trade Corridor or H2 Export, +1 Trade Token (represents market access).</li>
+<li><b>Blended Finance:</b> Mix grant+private if you own any green (Utility/Circular/Steel/H2). +$70 +1 DP.</li>
+<li><b>Cost Overrun:</b> Project costs more. Pay $50.</li>
+<li><b>Skills Grant:</b> Workforce training for green jobs. +$100.</li>
+<li><b>De-risking Guarantee:</b> Free exit from Carbon Lock-In Jail next time. Save card.</li>
+<li><b>Feasibility Study Bonus:</b> Small grant +$40 and good luck next turn.</li>
+</ul>
 <button class="btn sec" onclick="document.getElementById('helpModal').classList.remove('show')">Close</button>
 </div></div>
 
@@ -84,35 +107,34 @@ const db = getFirestore(app);
 const BOARD=[
 {id:0,name:"GO",type:"go"},
 {id:1,name:"COAL MINE",type:"property",price:60,rent:10,fossil:true},
-{id:2,name:"OIL & GAS",type:"property",price:80,rent:15,fossil:true},
-{id:3,name:"FOSSIL POWER",type:"property",price:100,rent:20,fossil:true},
+{id:2,name:"OIL & GAS FIELD",type:"property",price:80,rent:15,fossil:true},
+{id:3,name:"FOSSIL FUEL POWER PLANT",type:"property",price:100,rent:20,fossil:true},
 {id:4,name:"TRANSITION CHANCE",type:"chance"},
 {id:5,name:"SCRAP SUPPLY",type:"property",price:120,rent:25,dp:1},
-{id:6,name:"WATER UTILITY",type:"property",price:140,rent:30,dp:1},
-{id:7,name:"RENEWABLE GRID",type:"property",price:180,rent:40,dp:1},
-{id:8,name:"DEV FINANCE",type:"finance"},
-{id:9,name:"JAIL",type:"jail"},
-{id:10,name:"SCRAP PROCESSING",type:"property",price:160,rent:32,dp:1},
-{id:11,name:"BATTERY RECYCLING",type:"property",price:220,rent:45,dp:1},
-{id:12,name:"HEAT NETWORK",type:"property",price:240,rent:50,dp:1},
-{id:13,name:"SYMBIOSIS PARK",type:"property",price:300,rent:65,dp:1},
+{id:6,name:"RECYCLED WATER UTILITY",type:"property",price:140,rent:30,dp:1},
+{id:7,name:"RENEWABLE ELECTRICITY GRID",type:"property",price:180,rent:40,dp:1},
+{id:8,name:"DEVELOPMENT FINANCE",type:"finance"},
+{id:9,name:"CARBON LOCK-IN (JAIL)",type:"jail"},
+{id:10,name:"SCRAP PROCESSING CENTRE",type:"property",price:160,rent:32,dp:1},
+{id:11,name:"BATTERY RECYCLING FACILITY",type:"property",price:220,rent:45,dp:1},
+{id:12,name:"INDUSTRIAL HEAT NETWORK",type:"property",price:240,rent:50,dp:1},
+{id:13,name:"INDUSTRIAL SYMBIOSIS PARK",type:"property",price:300,rent:65,dp:1},
 {id:14,name:"TRANSITION CHANCE",type:"chance"},
-{id:15,name:"DEV FINANCE",type:"finance"},
-{id:16,name:"EAF STEEL",type:"property",price:200,rent:40,dp:1},
+{id:15,name:"DEVELOPMENT FINANCE",type:"finance"},
+{id:16,name:"EAF STEEL PLANT",type:"property",price:200,rent:40,dp:1},
 {id:17,name:"DRI PLANT",type:"property",price:260,rent:55,dp:1},
-{id:18,name:"HBI TERMINAL",type:"property",price:320,rent:75,dp:1},
-{id:19,name:"PARTNERSHIP HUB",type:"hub"},
+{id:18,name:"HBI TRADE TERMINAL",type:"property",price:320,rent:75,dp:1},
+{id:19,name:"INDUSTRIAL PARTNERSHIP HUB",type:"hub"},
 {id:20,name:"TRANSITION CHANCE",type:"chance"},
-{id:21,name:"BILATERAL TRADE",type:"property",price:120,rent:28,token:1},
-{id:22,name:"STRATEGIC EXPORT",type:"property",price:260,rent:60,token:1},
-{id:23,name:"GREEN CORRIDOR",type:"property",price:340,rent:70,token:1},
-{id:24,name:"DEV FINANCE",type:"finance"},
+{id:21,name:"BILATERAL TRADE AGREEMENT",type:"property",price:120,rent:28,token:1},
+{id:22,name:"STRATEGIC EXPORT PARTNERSHIP",type:"property",price:260,rent:60,token:1},
+{id:23,name:"GREEN TRADE CORRIDOR",type:"property",price:340,rent:70,token:1},
+{id:24,name:"DEVELOPMENT FINANCE",type:"finance"},
 {id:25,name:"ELECTROLYSER HUB",type:"property",price:220,rent:45,dp:1},
-{id:26,name:"H2 STORAGE",type:"property",price:280,rent:55,dp:1},
-{id:27,name:"H2 EXPORT",type:"property",price:360,rent:75,token:1,dp:1},
+{id:26,name:"HYDROGEN STORAGE",type:"property",price:280,rent:55,dp:1},
+{id:27,name:"HYDROGEN EXPORT TERMINAL",type:"property",price:360,rent:75,token:1,dp:1},
 ];
 
-// FIXED % MAPPED TO YOUR PHOTO - tuned for big board
 const POS_PCT=[
 {x:6,y:13},{x:18,y:13},{x:27,y:13},{x:36,y:13},{x:46,y:13},{x:55,y:13},{x:63,y:13},{x:72,y:13},{x:81,y:13},{x:91,y:13},
 {x:91,y:27},{x:91,y:37},{x:91,y:47},{x:91,y:58},{x:91,y:69},{x:91,y:82},
@@ -120,8 +142,27 @@ const POS_PCT=[
 {x:5,y:91},{x:5,y:64},{x:5,y:49},{x:5,y:33},
 ];
 
-const CHANCE_CARDS=[{t:"CBAM +$150+1T if Steel",e:(p)=>{const has=p.props.some(i=>[16,17,18].includes(i)); if(has){p.cash+=150;p.tokens+=1;return "+$150+1T";} return "No Steel"}},{t:"Green Proc +$60",e:(p)=>{p.cash+=60;return "+$60"}},{t:"Tech Break +$120+1DP",e:(p)=>{p.cash+=120;p.dp+=1;return "+$120+1DP"}},{t:"Trade Mission +$80+1T",e:(p)=>{p.cash+=80;p.tokens+=1;return "+$80+1T"}},];
-const FINANCE_CARDS=[{t:"Loan +$100",e:(p)=>{p.cash+=100;return "+$100"}},{t:"Grant +$150 if Steel/H2",e:(p)=>{const has=p.props.some(i=>[16,17,18,25,26,27].includes(i)); if(has){p.cash+=150;return "+$150";} return "Need Steel/H2"}},{t:"Export +1T",e:(p)=>{p.tokens+=1;return "+1T"}},{t:"Overrun -$50",e:(p)=>{p.cash-=50;return "-$50"}},{t:"Blended +$70+1DP",e:(p)=>{p.cash+=70;p.dp+=1;return "+$70+1DP"}},];
+const CHANCE_CARDS=[
+{title:"CBAM Shock — EU Carbon Border",desc:"The EU implements CBAM. Steel importers now pay for embedded carbon. If you already own green steel (EAF, DRI, HBI) you get a green premium from buyers who want low-carbon steel. Effect: If you own any Steel asset (EAF Steel, DRI Plant, HBI Terminal) → +$150 cash +1 Trade Token (new market access). If you own no Steel → No bonus. Teaches: Early decarbonisation creates trade advantage.",effect:(p)=>{const has=p.props.some(i=>[16,17,18].includes(i)); if(has){p.cash+=150;p.tokens+=1;return "Owns Steel → +$150 +1 Trade Token (green premium)";} return "No Steel owned → $0. Consider buying EAF/DRI/HBI to benefit from CBAM.";}},
+{title:"Green Public Procurement",desc:"Government announces all public buildings must use green steel and circular materials. Suppliers get paid. Effect: +$60 guaranteed. Small but helps cash flow. Teaches role of demand-side policy.",effect:(p)=>{p.cash+=60;return "+$60 public procurement payment";}},
+{title:"H2 Demand Surge — Offtakers Emerge",desc:"Major off-takers sign for green hydrogen. If you already have Hydrogen assets (Electrolyser Hub, Storage, Export Terminal) you can deliver and earn extra decarbonisation credit. Effect: +$100 cash. If you own Hydrogen → +1 DP extra.",effect:(p)=>{p.cash+=100; if(p.props.some(i=>[25,26,27].includes(i))){p.dp+=1;return "+$100 +1 DP (you own Hydrogen, can deliver)";} return "+$100 (no Hydrogen bonus)";}},
+{title:"Circular Economy Mandate",desc:"EU mandates 30% recycled content in industry. Owners of Circular assets benefit. Effect: For each Circular asset you own (Scrap Processing, Battery Recycling, Heat Network, Symbiosis Park) you get +$25. Max $100.",effect:(p)=>{const n=p.props.filter(i=>[10,11,12,13].includes(i)).length; const gain=n*25; p.cash+=gain; return n?`Owns ${n} Circular → +$${gain}`:`No Circular → $0`;}},
+{title:"Tech Breakthrough — Green DRI",desc:"Breakthrough in hydrogen-based DRI reduces cost 20%. All green steel players benefit. Effect: +$120 cash +1 DP (Decarbonisation Point). Represents innovation.",effect:(p)=>{p.cash+=120;p.dp+=1;return "+$120 +1 DP";}},
+{title:"Trade Mission to Global South",desc:"You join Agora Trade Mission to India/Brazil to promote green industrial partnership. Builds trust. Effect: +$80 +1 Trade Token (represents new partnership).",effect:(p)=>{p.cash+=80;p.tokens+=1;return "+$80 +1 Trade Token";}},
+{title:"Fossil Price Spike",desc:"Oil price spikes. If you still own Fossil assets (Coal Mine, Oil & Gas Field, Fossil Power Plant) you collect windfall — but also reputational risk. Effect: If you own Fossil → collect $25 from each other player.",effect:(p,all)=>{if(!p.props.some(i=>[1,2,3].includes(i))) return "No Fossil → no windfall (good for climate)"; let gain=0; all.forEach(o=>{if(o.id!==p.id){o.cash-=25; gain+=25;}}); p.cash+=gain; return `Fossil owner windfall: collected $${gain} from others`;}},
+{title:"Carbon Cost — Pay for Emissions",desc:"Carbon price rises to €120/t. If you own Fossil assets you must pay. Effect: If you own any Fossil → Pay $30 carbon cost. If you own no Fossil → $0. Incentive to divest.",effect:(p)=>{if(p.props.some(i=>[1,2,3].includes(i))){p.cash-=30;return "Owns Fossil → Pay $30 carbon cost";} return "No Fossil → No cost";}},
+];
+
+const FINANCE_CARDS=[
+{title:"Concessional Loan — Low-Interest",desc:"Development bank offers concessional loan for green industrial project. Cheap capital helps you build. Effect: +$100 cash immediately. No repayment in game — represents grant element.",effect:(p)=>{p.cash+=100;return "+$100 concessional loan";}},
+{title:"Decarb Grant — For Steel & Hydrogen",desc:"Grant from Climate Fund for decarbonising hard-to-abate sectors. Only if you already have Steel or Hydrogen asset (shows additionality). Effect: If you own EAF/DRI/HBI or Electrolyser/Storage/Export → +$150. Otherwise no grant — need asset first.",effect:(p)=>{const has=p.props.some(i=>[16,17,18,25,26,27].includes(i)); if(has){p.cash+=150;return "+$150 decarb grant (owns Steel/H2)";} return "No Steel/H2 → grant not applicable. Buy EAF/DRI/HBI or H2 first.";}},
+{title:"Export Credit Guarantee — Trade Finance",desc:"Export credit agency guarantees your green exports. Gives you market access = Trade Token. Effect: If you own Trade assets (Bilateral Trade, Strategic Export, Green Corridor, H2 Export) → +1 Trade Token. Represents derisked export.",effect:(p)=>{const has=p.props.some(i=>[21,22,23,27].includes(i)); if(has){p.tokens+=1;return "+1 Trade Token (export credit)";} return "Need Trade Corridor or H2 Export for export credit";}},
+{title:"Blended Finance — Grant + Private",desc:"Blended finance facility: public grant mobilises private capital, but only if you own any green asset (Utility, Circular, Steel, Hydrogen). Effect: If green owned → +$70 +1 DP. Shows need for green pipeline.",effect:(p)=>{const green=p.props.some(i=>[5,6,7,10,11,12,13,16,17,18,25,26,27].includes(i)); if(green){p.cash+=70;p.dp+=1;return "+$70 +1 DP (blended finance)";} return "Need green asset (Utility/Circular/Steel/H2)";}},
+{title:"Cost Overrun — Supply Chain Delay",desc:"Project faces cost overrun due to permitting delay and supply chain issue. Effect: Pay $50 extra. Represents real risk.",effect:(p)=>{p.cash-=50;return "-$50 cost overrun";}},
+{title:"Skills Grant — Workforce",desc:"Government grants for reskilling workers for green industry. Effect: +$100 cash. Represents just transition investment.",effect:(p)=>{p.cash+=100;return "+$100 skills grant";}},
+{title:"De-risking Guarantee — Free Jail Exit",desc:"Sovereign guarantee gives you free exit from Carbon Lock-In Zone next time. Effect: Earn Free Jail Exit card. Keep until used.",effect:(p)=>{p.freeJail=true;return "Free Jail Exit earned — use to exit Carbon Lock-In for free next time";}},
+{title:"Feasibility Study Bonus",desc:"Project preparation facility funds feasibility study. Effect: +$40 cash. Small help to keep moving.",effect:(p)=>{p.cash+=40;return "+$40 feasibility bonus";}},
+];
 
 function shuffle(a){let b=[...a];for(let i=b.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
 const COLORS=["#e63946","#2a9d8f","#264653","#f4a261"];
@@ -129,96 +170,105 @@ function makePlayer(id,name){return {id,name,pos:0,cash:500,tokens:0,dp:0,props:
 let players=[makePlayer(0,"P1"),makePlayer(1,"P2"),makePlayer(2,"P3"),makePlayer(3,"P4")];
 let cur=0,positions=[],chanceDeck=shuffle(CHANCE_CARDS),financeDeck=shuffle(FINANCE_CARDS);
 let roomCode=null,myId=0,isSolo=false,roomState=null;
-let gameStartTime=Date.now(),timelineYear=2025,f2030=false,f2050=false;
 
 function genCode(){const a=["GREEN","CIRCULAR","H2","STEEL","TRADE"];return a[Math.floor(Math.random()*a.length)]+"-"+Math.floor(Math.random()*90+10);}
 function calcPositions(){const img=document.getElementById('boardImg'); if(!img) return; const w=img.clientWidth,h=img.clientHeight; positions=POS_PCT.map(p=>({x:p.x/100*w,y:p.y/100*h}));}
 function getOwners(){let o={};players.forEach(p=>p.props.forEach(id=>o[id]=p.id));return o;}
-async function push(s){if(isSolo){players=s.players;cur=s.cur;chanceDeck=s.chanceDeck;financeDeck=s.financeDeck;renderAll();}else{await updateDoc(doc(db,"rooms",roomCode),{players:s.players,cur:s.cur,dice:s.dice,status:s.status,log:s.log,chanceDeck:s.chanceDeck,financeDeck:s.financeDeck,boardOwners:s.boardOwners,timelineYear,gameStartTime});}}
+async function push(s){if(isSolo){players=s.players;cur=s.cur;chanceDeck=s.chanceDeck;financeDeck=s.financeDeck;renderAll();}else{await updateDoc(doc(db,"rooms",roomCode),{players:s.players,cur:s.cur,dice:s.dice,status:s.status,log:s.log,chanceDeck:s.chanceDeck,financeDeck:s.financeDeck,boardOwners:s.boardOwners});}}
 
-window.createRoom=async()=>{const name=document.getElementById('hostName').value||"Host";roomCode=genCode();myId=0;players=[makePlayer(0,name)];chanceDeck=shuffle(CHANCE_CARDS);financeDeck=shuffle(FINANCE_CARDS);gameStartTime=Date.now();timelineYear=2025;f2030=f2050=false;const init={code:roomCode,cur:0,dice:"Created",status:`Room ${roomCode} — Year 2025 — 1/4`,log:[`${name} created ${roomCode} 2025`],chanceDeck:chanceDeck.map(c=>c.t),financeDeck:financeDeck.map(c=>c.t),players,boardOwners:{},timelineYear,gameStartTime};await setDoc(doc(db,"rooms",roomCode),init);listen();}
-window.joinRoom=async()=>{const code=document.getElementById('joinCode').value.toUpperCase().trim();const name=document.getElementById('joinName').value||"Player";document.getElementById('joinStatus').innerText="Checking...";const snap=await getDoc(doc(db,"rooms",code));if(!snap.exists()){document.getElementById('joinStatus').innerText="❌ Not found";return;}let data=snap.data();if(data.players.length>=4){document.getElementById('joinStatus').innerText="❌ Full";return;}myId=data.players.length;roomCode=code;data.players.push(makePlayer(myId,name));chanceDeck=shuffle(CHANCE_CARDS);financeDeck=shuffle(FINANCE_CARDS);await updateDoc(doc(db,"rooms",code),{players:data.players,log:[...data.log,`${name} joined`]});document.getElementById('joinStatus').innerText=`✅ Joined P${myId+1}`;listen();}
-function listen(){document.getElementById('lobby').style.display='none';document.getElementById('gameCard').style.display='block';onSnapshot(doc(db,"rooms",roomCode),snap=>{roomState=snap.data();if(!roomState)return;players=roomState.players;cur=roomState.cur;timelineYear=roomState.timelineYear||2025;gameStartTime=roomState.gameStartTime||Date.now();renderAll(true);});}
-window.playSolo=()=>{isSolo=true;players=[makePlayer(0,"P1"),makePlayer(1,"P2"),makePlayer(2,"P3"),makePlayer(3,"P4")];cur=0;chanceDeck=shuffle(CHANCE_CARDS);financeDeck=shuffle(FINANCE_CARDS);gameStartTime=Date.now();timelineYear=2025;f2030=f2050=false;document.getElementById('lobby').style.display='none';document.getElementById('gameCard').style.display='block';renderAll();}
+window.createRoom=async()=>{const name=document.getElementById('hostName').value||"Host";roomCode=genCode();myId=0;players=[makePlayer(0,name)];chanceDeck=shuffle(CHANCE_CARDS);financeDeck=shuffle(FINANCE_CARDS);const init={code:roomCode,cur:0,dice:"Created",status:`Room ${roomCode} — 1/4 — Year 2025`,log:[`${name} created ${roomCode}`],chanceDeck:chanceDeck.map(c=>c.title),financeDeck:financeDeck.map(c=>c.title),players,boardOwners:{}};await setDoc(doc(db,"rooms",roomCode),init);listen();}
+window.joinRoom=async()=>{const code=document.getElementById('joinCode').value.toUpperCase().trim();const name=document.getElementById('joinName').value||"Player";document.getElementById('joinStatus').innerText="Checking...";const snap=await getDoc(doc(db,"rooms",code));if(!snap.exists()){document.getElementById('joinStatus').innerText="❌ Not found";return;}let data=snap.data();if(data.players.length>=4){document.getElementById('joinStatus').innerText="❌ Full";return;}myId=data.players.length;roomCode=code;data.players.push(makePlayer(myId,name));await updateDoc(doc(db,"rooms",code),{players:data.players,log:[...data.log,`${name} joined`]});document.getElementById('joinStatus').innerText=`✅ Joined P${myId+1}`;listen();}
+function listen(){document.getElementById('lobby').style.display='none';document.getElementById('gameCard').style.display='block';onSnapshot(doc(db,"rooms",roomCode),snap=>{roomState=snap.data();if(!roomState)return;players=roomState.players;cur=roomState.cur;renderAll(true);});}
+window.playSolo=()=>{isSolo=true;players=[makePlayer(0,"P1"),makePlayer(1,"P2"),makePlayer(2,"P3"),makePlayer(3,"P4")];cur=0;chanceDeck=shuffle(CHANCE_CARDS);financeDeck=shuffle(FINANCE_CARDS);document.getElementById('lobby').style.display='none';document.getElementById('gameCard').style.display='block';renderAll();}
 
 function renderAll(isOnline=false){
 calcPositions();const s=isOnline?roomState:{players,cur,chanceDeck,financeDeck,boardOwners:getOwners()};if(!s||!s.players)return;
-document.getElementById('turnInfo').innerText=`Turn: ${s.players[cur].name} | $${s.players[cur].cash} DP${s.players[cur].dp} T${s.players[cur].tokens} | ${s.players.length}/4`;
-document.getElementById('players').innerHTML=s.players.map((p,i)=>{const final=p.cash+p.tokens*100+p.dp*200;return `<div class="player-card ${i===cur?'active':''}"><b style="color:${p.color}">●</b> ${p.name} ${i===myId&&isOnline?'(YOU)':''} ${i===cur?'⬅️':''}<br><span class="badge">$${p.cash}</span><span class="badge">${p.tokens}T</span><span class="badge">${p.dp}DP</span><span class="badge" style="background:#2a5a2a;color:white">FINAL $${final}</span><br><span style="font-size:11px">${p.props.map(id=>BOARD[id].name).join(', ')||'No props'}</span></div>`}).join('');
+document.getElementById('turnInfo').innerText=`Turn: ${s.players[cur].name} | Cash $${s.players[cur].cash} | DP ${s.players[cur].dp} | Trade Tokens ${s.players[cur].tokens}`;
+document.getElementById('players').innerHTML=s.players.map((p,i)=>{const final=p.cash+p.tokens*100+p.dp*200;return `<div class="player-card ${i===cur?'active':''}"><b style="color:${p.color}">●</b> ${p.name} ${i===myId&&isOnline?'(YOU)':''} ${i===cur?'⬅️ TURN':''}<br><span class="badge">$${p.cash} Cash</span><span class="badge">${p.tokens} Trade Tokens ×100 = $${p.tokens*100}</span><span class="badge" style="background:#d1fae5">${p.dp} DP ×200 = $${p.dp*200}</span><span class="badge" style="background:#2a5a2a;color:white">FINAL $${final}</span><br><span style="font-size:11px">Owns: ${p.props.map(id=>BOARD[id].name).join(', ')||'None'}</span></div>`}).join('');
 const layer=document.getElementById('tokenLayer');layer.innerHTML='';s.players.forEach(p=>{const pt=positions[p.pos]||{x:10,y:10};const d=document.createElement('div');d.className='player-dot';d.style.background=p.color;d.style.left=(pt.x-13+p.id*8)+'px';d.style.top=(pt.y-13+p.id*8)+'px';d.innerText=p.id+1;layer.appendChild(d);});
-const isMyTurn=isSolo||!isOnline||cur===myId;document.getElementById('rollBtn').disabled=!isMyTurn;document.getElementById('rollBtn').innerText=isMyTurn?`🎲 ROLL — ${s.players[cur].name}`:`⏳ ${s.players[cur].name}'s turn`;
+const isMyTurn=isSolo||!isOnline||cur===myId;document.getElementById('rollBtn').disabled=!isMyTurn;document.getElementById('rollBtn').innerText=isMyTurn?`🎲 ROLL — ${s.players[cur].name}`:`⏳ Waiting for ${s.players[cur].name}`;
 if(isOnline){document.getElementById('dice').innerText=roomState.dice;document.getElementById('status').innerHTML=roomState.status;document.getElementById('log').innerHTML=(roomState.log||[]).slice(-10).reverse().map(l=>`• ${l}`).join('<br>');}
 }
 
 function closeM(){document.getElementById('modal').classList.remove('show');}
-function showModal(t,b,a1,f1,a2,f2){document.getElementById('mTitle').innerText=t;document.getElementById('mBody').innerHTML=b;const b1=document.getElementById('mAction1'),b2=document.getElementById('mAction2');b1.innerText=a1||'OK';b1.onclick=async()=>{closeM();if(f1)await f1();};if(a2){b2.innerText=a2;b2.style.display='inline-block';b2.onclick=async()=>{closeM();if(f2)await f2();};}else b2.style.display='none';document.getElementById('modal').classList.add('show');}
-async function autoNext(){cur=(cur+1)%players.length;let ns={players,cur,dice:`Turn ${players[cur].name}`,status:`➡️ ${players[cur].name} at ${BOARD[players[cur].pos].name} | Year ${timelineYear}`,log:[... (roomState?.log||[]), `Turn ${players[cur].name} Year ${timelineYear}`],chanceDeck,financeDeck,boardOwners:getOwners(),timelineYear,gameStartTime};await push(ns);renderAll();}
+function showModal(t,b,a1,f1,a2,f2,a3,f3){document.getElementById('mTitle').innerText=t;document.getElementById('mBody').innerHTML=b;const b1=document.getElementById('mAction1'),b2=document.getElementById('mAction2'),b3=document.getElementById('mAction3');b1.innerText=a1||'OK';b1.onclick=async()=>{closeM();if(f1)await f1();};if(a2){b2.innerText=a2;b2.style.display='inline-block';b2.onclick=async()=>{closeM();if(f2)await f2();};}else b2.style.display='none';if(a3){b3.innerText=a3;b3.style.display='inline-block';b3.onclick=async()=>{closeM();if(f3)await f3();};}else b3.style.display='none';document.getElementById('modal').classList.add('show');}
+async function autoNext(){cur=(cur+1)%players.length;let ns={players,cur,dice:`Turn ${players[cur].name}`,status:`➡️ ${players[cur].name} at ${BOARD[players[cur].pos].name}`,log:[... (roomState?.log||[]), `Turn ${players[cur].name}`],chanceDeck,financeDeck,boardOwners:getOwners()};await push(ns);renderAll();}
+
+window.endGame=()=>{
+const sorted=[...players].sort((a,b)=>(b.cash+b.tokens*100+b.dp*200)-(a.cash+a.tokens*100+a.dp*200));
+let html=`<h4>🏁 Game Over — Final Scores</h4><p>Formula: Cash + Trade Tokens×$100 + DP×$200</p><table style="width:100%;border-collapse:collapse">`;
+html+=`<tr><th>Rank</th><th>Player</th><th>Final</th><th>Breakdown</th></tr>`;
+sorted.forEach((p,i)=>{const final=p.cash+p.tokens*100+p.dp*200; html+=`<tr style="border-top:1px solid #ddd"><td>${i===0?'🥇':i+1}</td><td><b style="color:${p.color}">${p.name}</b></td><td><b>$${final}</b></td><td style="font-size:11px">$${p.cash} + ${p.tokens}T×100=$${p.tokens*100} + ${p.dp}DP×200=$${p.dp*200}<br>Owns: ${p.props.map(id=>BOARD[id].name).join(', ')||'None'}</td></tr>`;});
+html+=`</table><p>Winner: <b>${sorted[0].name}</b> with $${sorted[0].cash+sorted[0].tokens*100+sorted[0].dp*200}</p><p>Contact feedback: Kajol — kajol@agora-industrie.de</p>`;
+showModal("Final Score",html,"Close");
+document.getElementById('rollBtn').disabled=true;
+}
 
 function handleLanding(p){
-const tile=BOARD[p.pos];const stranded=timelineYear>=2050&&tile.fossil;
-if(tile.type==='go'){p.cash+=200;p.tokens+=1;document.getElementById('status').innerHTML=`GO +$200+1T`;setTimeout(autoNext,1000);renderAll();return;}
+const tile=BOARD[p.pos];
+if(tile.type==='go'){p.cash+=200;p.tokens+=1;document.getElementById('status').innerHTML=`GO — +$200 +1 Trade Token (passing green strategy)`;setTimeout(autoNext,1000);renderAll();return;}
 else if(tile.type==='property'){
 const owner=players.find(pl=>pl.props.includes(tile.id));
 if(!owner){
-showModal(`BUY ${tile.name}?`,`Price $${tile.price} Rent $${stranded?0:tile.rent} ${tile.fossil?'[FOSSIL]':''} ${tile.dp?`+${tile.dp}DP`:''}<br>Cash $${p.cash}`,`BUY $${tile.price}`,async()=>{if(p.cash>=tile.price){p.cash-=tile.price;p.props.push(tile.id);if(tile.dp)p.dp+=tile.dp;if(tile.token)p.tokens+=tile.token;let ns={players,cur,dice:`Bought ${tile.name}`,status:`✅ ${p.name} bought ${tile.name}`,log:[... (roomState?.log||[]), `✅ ${p.name} bought ${tile.name}`],chanceDeck,financeDeck,boardOwners:getOwners(),timelineYear,gameStartTime};await push(ns);setTimeout(autoNext,700);}else alert('No cash');},`SKIP`,async()=>{let ns={players,cur,dice:'Skip',status:`⏭️ ${p.name} skipped`,log:[... (roomState?.log||[]), `${p.name} skip ${tile.name}`],chanceDeck,financeDeck,boardOwners:getOwners(),timelineYear,gameStartTime};await push(ns);setTimeout(autoNext,500);});
+showModal(`BUY ${tile.name}?`,`<b>${tile.name}</b><br>Price $${tile.price} | Rent $${tile.rent}<br>${tile.dp?`Gives +${tile.dp} DP (Decarbonisation Point = $200 final)<br>`:''}${tile.token?`Gives +${tile.token} Trade Token (Trade Token = $100 final, earned when you trade/share property or buy trade corridor)<br>`:''}${tile.fossil?'FOSSIL asset — risky<br>':''}Your Cash $${p.cash}<br>Trade Tokens: ${p.tokens} | DP: ${p.dp}`,`BUY $${tile.price}`,async()=>{if(p.cash>=tile.price){p.cash-=tile.price;p.props.push(tile.id);if(tile.dp)p.dp+=tile.dp;if(tile.token)p.tokens+=tile.token;let ns={players,cur,dice:`Bought ${tile.name}`,status:`✅ ${p.name} bought ${tile.name} ${tile.token?`+${tile.token} Trade Token`:''} ${tile.dp?`+${tile.dp} DP`:''}`,log:[... (roomState?.log||[]), `✅ ${p.name} bought ${tile.name} $${tile.price}`],chanceDeck,financeDeck,boardOwners:getOwners()};await push(ns);setTimeout(autoNext,700);}else alert('No cash');},`SKIP`,async()=>{let ns={players,cur,dice:'Skip',status:`⏭️ ${p.name} skipped ${tile.name}`,log:[... (roomState?.log||[]), `${p.name} skip ${tile.name}`],chanceDeck,financeDeck,boardOwners:getOwners()};await push(ns);setTimeout(autoNext,500);});
 return;
 }else if(owner.id!==p.id){
-let rent=stranded?0:tile.rent;if(rent>0){p.cash-=rent;owner.cash+=rent;}
-showModal('Rent',`${tile.name} owned by ${owner.name}<br>Rent $${rent} ${stranded?'(stranded $0)':''}`,rent>0?`Pay $${rent}`:'OK',async()=>{let ns={players,cur,dice:`Rent $${rent}`,status:`💸 ${p.name} → ${owner.name} $${rent}`,log:[... (roomState?.log||[]), `💸 ${p.name}→${owner.name} $${rent}`],chanceDeck,financeDeck,boardOwners:getOwners(),timelineYear,gameStartTime};await push(ns);setTimeout(autoNext,700);});return;
-}else{document.getElementById('status').innerHTML=`You own ${tile.name} ${stranded?'(STRANDED)':''}`;setTimeout(autoNext,900);renderAll();return;}
+let rent=tile.rent; p.cash-=rent; owner.cash+=rent;
+showModal('Pay Rent',`${tile.name} owned by <b style="color:${owner.color}">${owner.name}</b><br>Rent $${rent}<br>You: $${p.cash+rent}→$${p.cash}<br>Owner: $${owner.cash-rent}→$${owner.cash}<br><br>Rent visible in log + player card.`,`Pay $${rent}`,async()=>{let ns={players,cur,dice:`Rent $${rent}`,status:`💸 ${p.name} paid $${rent} rent to ${owner.name} for ${tile.name}`,log:[... (roomState?.log||[]), `💸 ${p.name} → ${owner.name} $${rent} rent ${tile.name}`],chanceDeck,financeDeck,boardOwners:getOwners()};await push(ns);setTimeout(autoNext,700);});return;
+}else{document.getElementById('status').innerHTML=`You own ${tile.name} — Trade Token ${p.tokens}, DP ${p.dp}`;setTimeout(autoNext,900);renderAll();return;}
 }
 else if(tile.type==='chance'||tile.type==='finance'){
-const deck=tile.type==='chance'?chanceDeck:financeDeck;const card=deck.pop()||CHANCE_CARDS[0];const res=card.e(p);
-showModal(`${tile.type==='chance'?'❓':'💰'} ${card.t}`,`${res}<br>Cash $${p.cash} DP${p.dp} T${p.tokens}`,'OK',async()=>{let ns={players,cur,dice:card.t,status:`${card.t} → ${res}`,log:[... (roomState?.log||[]), `${p.name} ${card.t} ${res}`],chanceDeck,financeDeck,boardOwners:getOwners(),timelineYear,gameStartTime};await push(ns);setTimeout(autoNext,600);});return;
+const deck=tile.type==='chance'?chanceDeck:financeDeck;const card=deck.pop()||CHANCE_CARDS[0];const before={c:p.cash,d:p.dp,t:p.tokens};const result=card.effect(p,players);
+showModal(`${tile.type==='chance'?'❓ Transition Chance':'💰 Development Finance'} — ${card.title}`,`<b>${card.title}</b><br><div style="background:#f7f3e8;padding:8px;border-radius:8px;margin:8px 0;font-size:13px"><i>${card.desc}</i></div><b>Result:</b> ${result}<br><br>Before: $${before.c} DP${before.d} TradeTokens${before.t} → After: $${p.cash} DP${p.dp} TradeTokens${p.tokens}`,'OK — Next Player',async()=>{let ns={players,cur,dice:card.title,status:`${card.title} → ${result}`,log:[... (roomState?.log||[]), `${p.name} drew ${card.title}: ${result}`],chanceDeck,financeDeck,boardOwners:getOwners()};await push(ns);setTimeout(autoNext,600);});return;
 }
-else if(tile.type==='jail'){p.jailed=1;showModal('JAIL',`Carbon Lock-In. Pay $100 or miss turn`,'Pay $100',async()=>{p.cash-=100;p.jailed=0;let ns={players,cur,dice:'Jail $100',status:`${p.name} paid $100`,log:[... (roomState?.log||[]), `${p.name} jail $100`],chanceDeck,financeDeck,boardOwners:getOwners(),timelineYear,gameStartTime};await push(ns);setTimeout(autoNext,600);},'Stay',async()=>{let ns={players,cur,dice:'Jail stay',status:`${p.name} jail stay`,log:[... (roomState?.log||[]), `${p.name} jail`],chanceDeck,financeDeck,boardOwners:getOwners(),timelineYear,gameStartTime};await push(ns);setTimeout(autoNext,600);});return;}
-else if(tile.type==='hub'){p.tokens+=1;document.getElementById('status').innerHTML=`Hub +1T`;setTimeout(autoNext,900);renderAll();return;}
+else if(tile.type==='jail'){
+if(p.freeJail){p.freeJail=false; showModal('Free Exit Used',`You used De-risking Guarantee — free exit from Carbon Lock-In!`,'Continue',async()=>{let ns={players,cur,dice:'Free exit',status:`${p.name} used free jail exit`,log:[... (roomState?.log||[]), `${p.name} free exit`],chanceDeck,financeDeck,boardOwners:getOwners()};await push(ns);setTimeout(autoNext,600);}); return;}
+p.jailed=1; showModal('CARBON LOCK-IN ZONE (JAIL)',`Landed on Carbon Lock-In. You are stuck due to fossil dependency. Pay $100 to decarbonise and exit, or miss a turn.`, 'Pay $100 to Exit',async()=>{p.cash-=100;p.jailed=0;let ns={players,cur,dice:'Jail $100',status:`${p.name} paid $100 to exit jail`,log:[... (roomState?.log||[]), `${p.name} jail paid $100`],chanceDeck,financeDeck,boardOwners:getOwners()};await push(ns);setTimeout(autoNext,600);},'Miss a Turn',async()=>{let ns={players,cur,dice:'Jail stay',status:`${p.name} stays in jail 1 turn`,log:[... (roomState?.log||[]), `${p.name} in jail`],chanceDeck,financeDeck,boardOwners:getOwners()};await push(ns);setTimeout(autoNext,600);});return;
+}
+else if(tile.type==='hub'){
+// TRADE HUB with Option A & B detailed
+showModal(`Industrial Partnership Hub — Trade Options`,
+`<b>You landed on Industrial Partnership Hub</b><br>Trade Tokens are earned when you trade or share a property.<br><br>
+<b>Option A — Trade a Property:</b> Swap one of your properties with another player's property. In real game, discuss and agree. Both players get +1 Trade Token for trading (represents partnership).<br><br>
+<b>Option B — Share a Property:</b> Share one of your properties. You keep ownership but give another player access. You get +1 Trade Token now. When others land, rent is split 50/50 (game simplifies: you still collect but you helped).<br><br>
+Choose below. You always get at least +1 Trade Token as partnership bonus.<br><br>Your properties: ${p.props.map(id=>BOARD[id].name).join(', ')||'None yet'}<br>Trade Tokens now: ${p.tokens}`,
+`Option A — Trade Property +1 Trade Token`, async()=>{
+  p.tokens+=1;
+  const otherPlayers=players.filter(pl=>pl.id!==p.id && pl.props.length>0);
+  if(otherPlayers.length===0 || p.props.length===0){
+    showModal("Trade — No partner yet",`No trade possible yet (need both players to own something). You still get +1 Trade Token for attempting partnership.<br>Tokens now ${p.tokens}`, 'OK', async()=>{let ns={players,cur,dice:`Hub Trade A attempt`,status:`🤝 ${p.name} attempted trade +1 Trade Token → ${p.tokens}`,log:[... (roomState?.log||[]), `🤝 ${p.name} Hub Trade A +1T`],chanceDeck,financeDeck,boardOwners:getOwners()};await push(ns); setTimeout(autoNext,600);});
+    return;
+  }
+  // simple trade: swap first prop
+  const ownProp=p.props[0];
+  const other=otherPlayers[0];
+  const otherProp=other.props[0];
+  // swap
+  p.props[0]=otherProp; other.props[0]=ownProp; other.tokens+=1;
+  let ns={players,cur,dice:`Hub Trade A`,status:`🤝 ${p.name} traded ${BOARD[ownProp].name} ↔ ${other.name} ${BOARD[otherProp].name} — both +1 Trade Token`,log:[... (roomState?.log||[]), `🤝 Trade A: ${p.name} ${BOARD[ownProp].name} ↔ ${other.name} ${BOARD[otherProp].name} +1T each`],chanceDeck,financeDeck,boardOwners:getOwners()};await push(ns); setTimeout(autoNext,700);
+},
+`Option B — Share Property +1 Trade Token`, async()=>{
+  p.tokens+=1;
+  if(p.props.length===0){
+    showModal("Share — No property",`You own nothing to share yet. You still get +1 Trade Token as hub bonus. Tokens ${p.tokens}`, 'OK', async()=>{let ns={players,cur,dice:`Hub Share attempt`,status:`🤝 ${p.name} Hub Share +1T → ${p.tokens}`,log:[... (roomState?.log||[]), `🤝 ${p.name} Hub Share +1T`],chanceDeck,financeDeck,boardOwners:getOwners()};await push(ns); setTimeout(autoNext,600);});
+    return;
+  }
+  const shared=BOARD[p.props[0]].name;
+  let ns={players,cur,dice:`Hub Share B`,status:`🤝 ${p.name} shared ${shared} — +1 Trade Token → ${p.tokens}. Rent now shared (50/50 in real rules).`,log:[... (roomState?.log||[]), `🤝 Share B: ${p.name} shared ${shared} +1T`],chanceDeck,financeDeck,boardOwners:getOwners()};await push(ns); setTimeout(autoNext,700);
+},
+`Just Take +1 Trade Token`
+, async()=>{ p.tokens+=1; let ns={players,cur,dice:`Hub bonus`,status:`🤝 ${p.name} took hub bonus +1 Trade Token → ${p.tokens}`,log:[... (roomState?.log||[]), `🤝 ${p.name} Hub +1 Trade Token`],chanceDeck,financeDeck,boardOwners:getOwners()};await push(ns); setTimeout(autoNext,600); });
+return;
+}
 }
 
 window.roll=async()=>{
-if(!isSolo&&roomState&&cur!==myId){alert(`Not your turn`);return;}
-let p=players[cur];if(p.jailed){p.jailed--;let ns={players,cur,dice:'Jail skip',status:`${p.name} jail skip`,log:[... (roomState?.log||[]), `${p.name} skip`],chanceDeck,financeDeck,boardOwners:getOwners(),timelineYear,gameStartTime};await push(ns);setTimeout(autoNext,700);return;}
+if(!isSolo&&roomState&&cur!==myId){alert(`Not your turn — it's ${players[cur].name}`);return;}
+let p=players[cur];if(p.jailed){p.jailed--;let ns={players,cur,dice:'Jail skip',status:`${p.name} jail skip`,log:[... (roomState?.log||[]), `${p.name} skip`],chanceDeck,financeDeck,boardOwners:getOwners()};await push(ns);setTimeout(autoNext,700);return;}
 const d1=Math.floor(Math.random()*6)+1,d2=Math.floor(Math.random()*6)+1,total=d1+d2;document.getElementById('dice').innerText=`${d1}+${d2}=${total}`;const old=p.pos;p.pos=(p.pos+total)%28;if(p.pos<old){p.cash+=200;p.tokens+=1;}
-let ns={players,cur,dice:`${d1}+${d2}=${total}`,status:`${p.name} rolled ${total} → ${BOARD[p.pos].name} | Year ${timelineYear}`,log:[... (roomState?.log||[]), `${p.name} ${total} → ${BOARD[p.pos].name}`],chanceDeck,financeDeck,boardOwners:getOwners(),timelineYear,gameStartTime};await push(ns);renderAll();setTimeout(()=>handleLanding(p),400);
+let ns={players,cur,dice:`${d1}+${d2}=${total}`,status:`${p.name} rolled ${total} → ${BOARD[p.pos].name} ${p.pos<old?'(Passed GO +$200+1 Trade Token)':''}`,log:[... (roomState?.log||[]), `${p.name} rolled ${total} → ${BOARD[p.pos].name}`],chanceDeck,financeDeck,boardOwners:getOwners()};await push(ns);renderAll();setTimeout(()=>handleLanding(p),400);
 }
 
-// TIMELINE — FIXED: shows countdown + flashes
-function checkTimeline(){
-const elapsed=Date.now()-gameStartTime;const mins=elapsed/60000;
-let year=2025;if(mins>=20)year=2050;else if(mins>=10)year=2030;
-const to2030=Math.max(0,10-mins), to2050=Math.max(0,20-mins);
-const tl=document.getElementById('timelineInfo');
-if(year===2025) tl.innerHTML=`⏱️ 2025 | 2030 in ${Math.floor(to2030)}:${String(Math.floor((to2030%1)*60)).padStart(2,'0')} | 2050 in ${Math.floor(to2050)}:${String(Math.floor((to2050%1)*60)).padStart(2,'0')}`;
-else if(year===2030) tl.innerHTML=`⚠️ 2030 NOW! | 2050 in ${Math.floor(to2050)}:${String(Math.floor((to2050%1)*60)).padStart(2,'0')}`;
-else tl.innerHTML=`🔴 2050 ARRIVED — Fossil stranded!`;
-
-if(year!==timelineYear){
-timelineYear=year;
-const st=document.getElementById('status');
-if(year===2030&&!f2030){
-f2030=true;st.className="status flash2030";st.innerHTML="⚠️ <b>2030 REACHED — You are now in 2030!</b> Fossil owners must divest: Pay 50% value or Skip.";
-players.forEach(pl=>{
-const foss=pl.props.filter(id=>BOARD[id].fossil);
-if(foss.length){
-const val=foss.reduce((s,id)=>s+BOARD[id].price,0);const cost=Math.floor(val*0.5);
-showModal(`2030 — ${pl.name} Sell Fossil?`,`Owns ${foss.map(id=>BOARD[id].name).join(', ')} Value $${val}<br>Pay 50% = $${cost} to bank to sell, or keep risk.`,`Sell Pay $${cost}`,async()=>{if(pl.cash>=cost){pl.cash-=cost;foss.forEach(fid=>{const i=pl.props.indexOf(fid);if(i>-1)pl.props.splice(i,1);});let ns={players,cur,dice:`2030 sell`,status:`♻️ ${pl.name} sold fossil $${cost}`,log:[... (roomState?.log||[]), `♻️ ${pl.name} sold fossil 2030 $${cost}`],chanceDeck,financeDeck,boardOwners:getOwners(),timelineYear,gameStartTime};await push(ns);}else alert('No cash');},`Skip`,async()=>{let ns={players,cur,dice:`2030 skip`,status:`⏭️ ${pl.name} kept fossil 2030`,log:[... (roomState?.log||[]), `⏭️ ${pl.name} kept fossil`],chanceDeck,financeDeck,boardOwners:getOwners(),timelineYear,gameStartTime};await push(ns);});
-}
-});
-}
-if(year===2050&&!f2050){
-f2050=true;st.className="status flash2050";st.innerHTML="🔴 <b>2050 ARRIVED!</b> Fossil stranded — Rent $0 — Pay $200 closure.";
-players.forEach(pl=>{
-const foss=pl.props.filter(id=>BOARD[id].fossil);
-if(foss.length){
-pl.cash-=200;
-showModal(`2050 — ${pl.name} Stranded`,`Fossil ${foss.map(id=>BOARD[id].name).join(', ')} redundant. No rent. Pay $200 closure + just transition fund.`,`Pay $200`,async()=>{let ns={players,cur,dice:`2050 closure`,status:`🔴 ${pl.name} paid $200 closure 2050`,log:[... (roomState?.log||[]), `🔴 ${pl.name} fossil stranded 2050 -$200`],chanceDeck,financeDeck,boardOwners:getOwners(),timelineYear,gameStartTime};await push(ns);});
-}
-});
-}
-}
-renderAll();
-}
-setInterval(checkTimeline,1000);
 window.addEventListener('load',()=>{calcPositions();renderAll();setTimeout(calcPositions,500);});window.addEventListener('resize',()=>{calcPositions();renderAll();});
 const params=new URLSearchParams(location.search);const autoRoom=params.get('room');if(autoRoom){document.getElementById('joinCode').value=autoRoom;}
 </script>
